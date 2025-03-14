@@ -10,15 +10,18 @@ export class AI {
     }
 
     public async getHint(question: string, startYear: number, endYear: number): Promise<string> {
+        const startYearPrefix = startYear >= 0 ? "AD" : "BC"
+        const endYearPrefix = endYear >= 0 ? "AD" : "BC"
+
         try {
             const response = await this.groq.chat.completions.create({
                 model: "llama3-8b-8192",
                 messages: [
                     {
                         role: "system",
-                        content: "You are a helpful assistant for the Time Traveler Game. Provide a one-sentence hint about the time period based on the user's question, but do not mention the year directly. Focus on describing technologies, culture, and significant events without revealing the exact year. The time period is " + startYear + " - " + endYear + ". If you are asked for the year, don't give any hints, it is not allowed to ask for the year"
+                        content: "Respond with a short sentence providing a hint related to the given time period. Do not mention the year."
                     },
-                    { role: "user", content: `Hint: ${question}` },
+                    { role: "user", content: "Time Period: " + startYear + startYearPrefix + " - " + endYear + endYearPrefix + ". Hint:" + question },
                 ],
             });
             const hint = response.choices[0]?.message?.content?.trim() ?? "Sorry, I couldn't provide a hint.";
