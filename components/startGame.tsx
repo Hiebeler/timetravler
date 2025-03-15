@@ -2,7 +2,6 @@
 
 import { TimePeriodDifficulty } from "@/data/timePeriods";
 import TimePeriodSelector from "./timePeriodSelector";
-import { useState } from "react";
 
 const StartGame = ({
   start,
