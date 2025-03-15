@@ -8,6 +8,11 @@ import { HintService } from "@/services/hint.service";
 import { useMutation } from "@tanstack/react-query";
 
 import { useState } from "react";
+import StartGame from "./startGame";
+import Guess from "./guess";
+import Question from "./question";
+import HintBox from "./hintBox";
+import toast from "react-hot-toast";
 
 const Game = () => {
   const [gameStatus, setGameStatus] = useState<GameStatus>(GameStatus.Pending);
@@ -16,7 +21,6 @@ const Game = () => {
   );
   const [hints, setHints] = useState<Hint[]>([]);
   const [question, setQuestion] = useState<string>("");
-  const [guess, setGuess] = useState<string>("");
 
   const startGame = () => {
     setTimePeriod(getRandomTimePeriod());
@@ -44,64 +48,47 @@ const Game = () => {
     },
   });
 
-  const submitGuess = () => {
-    const year = Number(guess)
+  const submitGuess = (guess: string) => {
+    const year = Number(guess);
     if (year >= timePeriod!.startYear && year <= timePeriod!.endYear) {
-        setGameStatus(GameStatus.Won);
+      setGameStatus(GameStatus.Won);
     } else {
-        setGuess("");
+      const distance = Math.min(Math.abs(timePeriod!.startYear - year), Math.abs(timePeriod!.endYear - year))
+      if (distance <= 100) {
+        toast.error("You are close by")
+      } else {
+        toast.error("Wrong")
+      }
     }
-  }
+  };
 
   if (gameStatus == GameStatus.Won) {
-    return <div>
-        <h2 className="text-2xl">Won</h2>
-        <p>{timePeriod?.name}</p>
-        <p>{timePeriod?.startYear} - {timePeriod?.endYear}</p>
-    </div>
-  }
-
-  if (gameStatus == GameStatus.Pending) {
     return (
       <div>
-        <button onClick={startGame}>Start</button>
+        <h2 className="text-2xl">Won</h2>
+        <p>{timePeriod?.name}</p>
+        <p>
+          {timePeriod?.startYear} - {timePeriod?.endYear}
+        </p>
       </div>
     );
   }
 
+  if (gameStatus == GameStatus.Pending) {
+    return <StartGame start={startGame} />;
+  }
+
   return (
     <div>
-      <div className="">
-        <label htmlFor="guess">Guess</label>
-        <input
-          placeholder="2025"
-          id="guess"
-          value={guess}
-          onChange={(e) => setGuess(e.target.value)}
-        />
-        <button onClick={submitGuess}>Guess</button>
+      <Guess submitGuess={submitGuess} />
+
+      <div className="w-full space-y-4 justify-center items-center flex flex-col mt-10">
+        {hints.map((hint: Hint, index: number) => (
+          <HintBox hint={hint} index={index} />
+        ))}
       </div>
 
-      <div>
-        {hints.map((hint: Hint, index: number) => {
-          return (
-            <div key={index}>
-              <p>Question: {hint.question}</p>
-              <p>Hint: {hint.hint}</p>
-            </div>
-          );
-        })}
-      </div>
-
-      <div>
-        <label htmlFor="">Question:</label>
-        <input
-          type="text"
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-        />
-        <button onClick={() => getHint(question)}>Submit</button>
-      </div>
+      <Question getHint={getHint} />
     </div>
   );
 };
