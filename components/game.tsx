@@ -1,6 +1,5 @@
 "use client";
 
-import { timePeriods } from "@/data/timePeriods";
 import { GameStatus } from "@/interfaces/gamestatus.enum";
 import { Hint } from "@/interfaces/hint.interface";
 import { TimePeriod } from "@/interfaces/timePeriod.interface";
@@ -13,14 +12,16 @@ import Guess from "./guess";
 import Question from "./question";
 import HintBox from "./hintBox";
 import toast from "react-hot-toast";
+import { getTimePeriods } from "@/utils/timePeriodHelper";
+import { TimePeriodDifficulty } from "@/data/timePeriods";
 
 const Game = () => {
+  const [timePeriodMode, setTimePeriodMode] = useState<TimePeriodDifficulty>(TimePeriodDifficulty.Easy)
   const [gameStatus, setGameStatus] = useState<GameStatus>(GameStatus.Pending);
   const [timePeriod, setTimePeriod] = useState<TimePeriod | undefined>(
     undefined
   );
   const [hints, setHints] = useState<Hint[]>([]);
-  const [question, setQuestion] = useState<string>("");
 
   const startGame = () => {
     setTimePeriod(getRandomTimePeriod());
@@ -28,6 +29,7 @@ const Game = () => {
   };
 
   const getRandomTimePeriod = (): TimePeriod => {
+    const timePeriods = getTimePeriods(timePeriodMode!)
     const randomIndex = Math.floor(Math.random() * timePeriods.length);
     return timePeriods[randomIndex];
   };
@@ -39,9 +41,8 @@ const Game = () => {
   const getHintMutation = useMutation({
     mutationFn: (question: string) =>
       HintService.getHint(timePeriod!.startYear, timePeriod!.endYear, question),
-    onSuccess: (data: string) => {
+    onSuccess: (data: string, question: string) => {
       setHints((prev) => [...prev, { question: question, hint: data }]);
-      setQuestion("");
     },
     onError: (error) => {
       console.error(error);
@@ -78,7 +79,7 @@ const Game = () => {
   }
 
   if (gameStatus == GameStatus.Pending) {
-    return <StartGame start={startGame} />;
+    return <StartGame start={startGame} timePeriodMode={timePeriodMode} setTimePeriodMode={setTimePeriodMode}/>;
   }
 
   return (
