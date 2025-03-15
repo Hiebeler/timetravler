@@ -53,11 +53,14 @@ const Game = () => {
     if (year >= timePeriod!.startYear && year <= timePeriod!.endYear) {
       setGameStatus(GameStatus.Won);
     } else {
-      const distance = Math.min(Math.abs(timePeriod!.startYear - year), Math.abs(timePeriod!.endYear - year))
+      const distance = Math.min(
+        Math.abs(timePeriod!.startYear - year),
+        Math.abs(timePeriod!.endYear - year)
+      );
       if (distance <= 100) {
-        toast.error("You are close by")
+        toast.error("You are close by");
       } else {
-        toast.error("Wrong")
+        toast.error("Wrong");
       }
     }
   };
@@ -84,7 +87,9 @@ const Game = () => {
 
       <div className="w-full space-y-4 justify-center items-center flex flex-col mt-10">
         {hints.map((hint: Hint, index: number) => (
-          <HintBox hint={hint} index={index} />
+          <div key={index}>
+            <HintBox hint={hint} />
+          </div>
         ))}
       </div>
 
