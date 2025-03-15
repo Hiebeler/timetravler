@@ -39,6 +39,7 @@ export async function POST(req: NextRequest) {
         const hint = aiResponse.choices[0]?.message?.content || "No hint available.";
         return NextResponse.json({ hint });
     } catch (error) {
+        console.error(error);
         return NextResponse.json({ error: "Failed to fetch hint" }, { status: 500 });
     }
 }
